@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>测试报告</title>
+    <meta charset="UTF-8">
+    <style>body {    
+    font-family: consolas, Verdana, sans-serif;
+    font-size: .95em;
+    color: #696e71;
+    display: grid;
+    grid-template-columns: 1fr 5rem;
+}
+
+.main_section {   
+    width: 90%;
+    margin: 0 auto;
+}
+
+#float_menu{    
+    position:fixed;
+    top:0;
+    right:0;
+    text-align: center;
+}
+
+#float_menu .menu-item {       
+    cursor: pointer;
+    padding: .5em;
+    margin: .5em 0;
+    color: #c08580;
+    background-color: #f8f0ef;
+    font-size: 1.2em;
+}
+
+
+
+.result{  
+    display: flex;
+}
+  
+  
+.result_table{
+    border-collapse: collapse;
+    border: 1px solid #f0e0e5;
+    width: 30em;
+    text-align: center;
+    font-size: 1.0em;
+}
+      
+.result_table td{
+    border: 1px solid #f0e0e5;
+    padding: .3em;
+}
+  
+.result_barchart{  
+    width: 30em;
+    margin: 0 5em 0 5em;
+}
+  
+.barchar_item{
+    margin: 2.5rem 0;
+}
+  
+.barchart_barbox {
+    margin: 0.5em 0;
+    width: 100%;
+    background-color: #fff;
+    border: 1px solid #86c2dd;
+    border-radius: .2em;
+}
+  
+.barchart_bar {
+    text-align: right;
+    height: 1.2rem;
+}
+  
+  
+
+
+
+.h3_button {
+    margin: 1.5em;
+    cursor: pointer;
+    color: #03a9f4;
+}
+
+
+.info
+{
+    white-space:pre-wrap;
+    margin: .8em 1.5em;
+}
+
+
+.error-info
+{
+    color: #a64747
+}
+
+.suite_dir {
+    margin: 1em .2em;
+    padding: .3em;
+    /* background-color: #dfeff6; */
+    border: 1px solid #bcd8e4;
+}
+.suite_file {
+    margin: 1em .2em;
+    padding: .3em;
+    border: 1px solid #bcd8e4;
+}
+
+
+.case {
+    margin: 1em .2em;
+    /* padding: .3em; */
+    border: 1px solid #e7d4d4;
+}
+
+.case_class_path{
+    margin: 0em 1em; 
+}
+
+
+.folder_header { 
+    padding: .2em .7em;
+    background-color: #fffaf9;
+    cursor: pointer;
+}
+
+
+.setup{
+    margin: .2em;
+    /* padding: .3em; */
+    /* border: 1px solid #e7d4d4; */
+}
+.teardown{
+    margin: .2em;
+    /* padding: .3em;*/
+    /* border: 1px solid #e7d4d4; */
+}
+.test_steps{
+    margin: .2em;
+    padding: .3em;
+    /* border: 1px solid #e7d4d4; */
+}
+
+
+.label {
+    display: inline-block;
+    padding: .1em .5em;
+    font-size: .88em;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    color: #0d6ebc;
+    border-radius: .2em;
+    min-width: 5em;    
+    margin-right: 2em;
+    font-family: consolas;
+}
+
+/* .suite_setup .label{
+    color: #219e26 ;
+}
+.suite_teardown .label{
+    color: #219e26;
+} */
+
+
+/* .case.pass   .casename{
+    color: #329132 ;
+} */
+.case.pass   .caselabel{
+    color: white;
+    background-color: #3b9e3f;
+}
+/* .case.fail   .casename{
+    color: #a64747;
+} */
+.case.fail   .caselabel{
+    color: white;
+    background-color: #a64747;
+}
+/* .case.abort   .casename{
+    color: #953ab7;
+} */
+.case.abort   .caselabel{
+    color: white;
+    background-color: #9c27b0;
+}
+
+
+
+.case_step  {
+    margin: .8em;
+}
+.checkpoint_pass {
+    margin: .8em;
+}
+.checkpoint_fail {
+    margin: .8em;
+}
+
+.case_step  .tag{
+    color: #2196f3;;
+    margin: .3em 1em .3em 0;
+    padding: .1em .3em;
+    font-size: .92em;
+}
+
+.checkpoint_pass .tag{
+    color: #009806;
+    margin:.3em 1em .3em .5em;
+    padding: .1em .3em;
+    font-size: .92em;
+}
+.checkpoint_fail .tag{
+    color: #9c2020;
+    margin:.3em 1em .3em .5em;
+    padding: .1em .3em;
+    font-size: .92em;
+}
+
+.screenshot {
+    border: 1px solid #86c2dd;
+}
+
+.executetime {
+    float: right;
+}</style>
+    <script type="text/javascript">var FOLDER_ALL_CASES = false //是否为精简模式的标记
+var ERROR_INFOS = [];  // 错误信息列表
+var current_error_idx = -1;
+
+// 页面加载后执行的函数
+window.addEventListener("load", function(){
+    // 所有 .folder_header 添加点击事件处理
+    let folderHeaderEles = document.querySelectorAll(".folder_header");
+    folderHeaderEles.forEach(function(ele) {
+        ele.addEventListener("click", function(event) {
+        let fb = event.target.closest('.folder_header').nextElementSibling;
+        fb.style.display = fb.style.display === 'none' ? 'block' : 'none'
+        });
+    });
+
+    // 找到所有的错误信息对象
+    ERROR_INFOS = document.querySelectorAll(".error-info");
+});
+
+
+
+function toggle_folder_all_cases(){
+    let eles = document.querySelectorAll(".folder_body");
+    
+    FOLDER_ALL_CASES = !FOLDER_ALL_CASES;
+    document.getElementById('display_mode').innerHTML = FOLDER_ALL_CASES? "Detail" : "Summary"
+
+    for (const ele of eles){
+        ele.style.display =  FOLDER_ALL_CASES? "none": "block"
+    }
+    
+}
+
+
+
+function previous_error(){
+    // 查找错误必须是详细模式
+    if (FOLDER_ALL_CASES)
+        toggle_folder_all_cases()
+
+    current_error_idx -= 1; 
+    if (current_error_idx<0)
+        current_error_idx = 0
+
+    
+    let error = ERROR_INFOS[current_error_idx];
+
+    error.scrollIntoView({behavior: "smooth", block: "center", inline: "start"});
+
+    
+}
+
+
+function next_error(){
+    
+    // 查找错误必须是详细模式
+    if (FOLDER_ALL_CASES)
+        toggle_folder_all_cases()
+
+    current_error_idx += 1;
+    if (current_error_idx > ERROR_INFOS.length-1)
+        current_error_idx = ERROR_INFOS.length-1
+
+    let error = ERROR_INFOS[current_error_idx];
+
+    error.scrollIntoView({behavior: "smooth", block: "center", inline: "start"});
+    
+}</script>
+  </head>
+  <body>
+    <div class="main_section">
+      <h1 style="font-family: auto">测试报告</h1>
+      <h3>统计结果</h3>
+      <div class="result">
+        <table class="result_table">
+          <tbody>
+            <tr>
+              <td>hytest 版本</td>
+              <td>0.8.12</td>
+            </tr>
+            <tr>
+              <td>开始时间</td>
+              <td>2024/05/30 08:36:46</td>
+            </tr>
+            <tr>
+              <td>结束时间</td>
+              <td>2024/05/30 08:36:53</td>
+            </tr>
+            <tr>
+              <td>耗时</td>
+              <td>7.570 秒</td>
+            </tr>
+            <tr>
+              <td>预备执行用例数量</td>
+              <td>20</td>
+            </tr>
+            <tr>
+              <td>实际执用例行数量</td>
+              <td>20</td>
+            </tr>
+            <tr>
+              <td>通过</td>
+              <td>18</td>
+            </tr>
+            <tr>
+              <td>失败</td>
+              <td style="color:red">2</td>
+            </tr>
+            <tr>
+              <td>异常</td>
+              <td style="">0</td>
+            </tr>
+            <tr>
+              <td>阻塞</td>
+              <td style="">0</td>
+            </tr>
+            <tr>
+              <td>套件初始化失败</td>
+              <td style="">0</td>
+            </tr>
+            <tr>
+              <td>套件清除  失败</td>
+              <td style="">0</td>
+            </tr>
+            <tr>
+              <td>用例初始化失败</td>
+              <td style="">0</td>
+            </tr>
+            <tr>
+              <td>用例清除  失败</td>
+              <td style="">0</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="result_barchart">
+          <div class="barchar_item">
+            <span>用例通过 90% ： 18 个</span>
+            <div class="barchart_barbox">
+              <div class="barchart_bar" style="width: 90.0%; background-color: #04AA6D;"></div>
+            </div>
+          </div>
+          <div class="barchar_item">
+            <span>用例失败 10% ： 2 个</span>
+            <div class="barchart_barbox">
+              <div class="barchart_bar" style="width: 10.0%; background-color: #bb4069;"></div>
+            </div>
+          </div>
+          <div class="barchar_item">
+            <span>用例异常 0% ： 0 个</span>
+            <div class="barchart_barbox">
+              <div class="barchart_bar" style="width: 0.0%; background-color: #9c27b0;"></div>
+            </div>
+          </div>
+          <div class="barchar_item">
+            <span>用例阻塞 0% ： 0 个</span>
+            <div class="barchart_barbox">
+              <div class="barchart_bar" style="width: 0.0%; background-color: #dcbdbd;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:2em">
+        <h3 style="display:inline">执行日志</h3>
+      </div>
+      <div class="exec_log">
+        <div class="suite_dir" id="suite_dir cases\空环境\">
+          <div>
+            <span class="label">进入目录</span>
+            <span>cases\空环境\</span>
+          </div>
+          <div class="suite_setup setup" id="suite_setup setup cases\空环境\">
+            <div class="folder_header">
+              <span class="label">套件初始化</span>
+              <span>cases\空环境\</span>
+              <span class="executetime">2024-05-30 08:36:46</span>
+            </div>
+            <div class="folder_body">
+              <div class="info">开始执行目录初始化：系统中没有教师</div>
+              <div class="info">开始执行目录初始化：系统中没有班级</div>
+            </div>
+          </div>
+        </div>
+        <div class="suite_file" id="suite_file cases\空环境\空环境.py">
+          <div>
+            <span class="label">进入文件</span>
+            <span>cases\空环境\空环境.py</span>
+          </div>
+          <div class="case pass" id="case_00000001">
+            <div class="folder_header">
+              <span class="label caselabel">用例 PASS</span>
+              <span class="casename">班级API_添加班级1 - tc000001</span>
+              <span class="executetime">2024-05-30 08:36:46</span>
+            </div>
+            <div class="folder_body">
+              <span class="case_class_path">cases\空环境\空环境.py::tc000001</span>
+              <div class="test_steps" id="test_steps 班级API_添加班级1 - tc000001">
+                <span class="label">测试步骤</span>
+                <div class="case_step">
+                  <span class="tag">步骤 #1</span>
+                  <span>发送添加班级请求,并获取新增班级的邀请码与id</span>
+                </div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查是否创建成功</span>
+                </div>
+                <div class="case_step">
+                  <span class="tag">步骤 #2</span>
+                  <span>发送列出班级请求</span>
+                </div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>对比列出请求的返回消息是否和第一步相同</span>
+                </div>
+              </div>
+              <div class="case_teardown teardown case_st_lable" id="case_teardown teardown 班级API_添加班级1 - tc000001">
+                <span class="label">用例清除</span>
+                <div class="info">开始执行清除：删除用例中新增的班级</div>
+              </div>
+            </div>
+          </div>
+          <div class="case pass" id="case_00000002">
+            <div class="folder_header">
+              <span class="label caselabel">用例 PASS</span>
+              <span class="casename">修改班级API_修改班级3 - tc000054</span>
+              <span class="executetime">2024-05-30 08:36:46</span>
+            </div>
+            <div class="folder_body">
+              <span class="case_class_path">cases\空环境\空环境.py::tc000054</span>
+              <div class="test_steps" id="test_steps 修改班级API_修改班级3 - tc000054">
+                <span class="label">测试步骤</span>
+                <div class="case_step">
+                  <span class="tag">步骤 #1</span>
+                  <span>在空环境中调用修改班级API，classID为不存在的班级ID</span>
+                </div>
+                <div class="info">实际返回结果：{'reason': 'id 为`123456789`的班级不存在', 'retcode': 404}</div>
+                <div class="info">预期返回结果：{'retcode': 404, 'reason': 'id 为`123456789`的班级不存在'}</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果是否符合预期</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="suite_dir" id="suite_dir cases\空环境\七年级1班\">
+          <div>
+            <span class="label">进入目录</span>
+            <span>cases\空环境\七年级1班\</span>
+          </div>
+          <div class="suite_setup setup" id="suite_setup setup cases\空环境\七年级1班\">
+            <div class="folder_header">
+              <span class="label">套件初始化</span>
+              <span>cases\空环境\七年级1班\</span>
+              <span class="executetime">2024-05-30 08:36:46</span>
+            </div>
+            <div class="folder_body">
+              <div class="info">开始执行目录初始化：系统中已有班级（七年级1班）</div>
+            </div>
+          </div>
+        </div>
+        <div class="suite_file" id="suite_file cases\空环境\七年级1班\七年级1班.py">
+          <div>
+            <span class="label">进入文件</span>
+            <span>cases\空环境\七年级1班\七年级1班.py</span>
+          </div>
+          <div class="case pass" id="case_00000003">
+            <div class="folder_header">
+              <span class="label caselabel">用例 PASS</span>
+              <span class="casename">班级API_添加班级2 - tc000002</span>
+              <span class="executetime">2024-05-30 08:36:46</span>
+            </div>
+            <div class="folder_body">
+              <span class="case_class_path">cases\空环境\七年级1班\七年级1班.py::tc000002</span>
+              <div class="test_steps" id="test_steps 班级API_添加班级2 - tc000002">
+                <span class="label">测试步骤</span>
+                <div class="case_step">
+                  <span class="tag">步骤 #1</span>
+                  <span>调用创建班级API，创建一个系统中不存在同年级的同名班级</span>
+                </div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查创建API返回信息</span>
+                </div>
+                <div class="case_step">
+                  <span class="tag">步骤 #2</span>
+                  <span>调用列出班级API</span>
+                </div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果是否包含STEP1中创建的信息</span>
+                </div>
+              </div>
+              <div class="case_teardown teardown case_st_lable" id="case_teardown teardown 班级API_添加班级2 - tc000002">
+                <span class="label">用例清除</span>
+                <div class="info">开始执行用例清除操作：删除用例中创建的班级</div>
+              </div>
+            </div>
+          </div>
+          <div class="case fail" id="case_00000004">
+            <div class="folder_header">
+              <span class="label caselabel">用例 FAIL</span>
+              <span class="casename">班级API_添加班级3 - tc000003</span>
+              <span class="executetime">2024-05-30 08:36:46</span>
+            </div>
+            <div class="folder_body">
+              <span class="case_class_path">cases\空环境\七年级1班\七年级1班.py::tc000003</span>
+              <div class="case_setup setup case_st_lable" id="case_setup setup 班级API_添加班级3 - tc000003">
+                <span class="label">用例初始化</span>
+                <div class="info">执行用例级初始化操作：调用列出班级API，获取已有班级信息</div>
+                <div class="info">[{'name': '七年级1班', 'grade__name': '七年级', 'invitecode': '202634243420', 'studentlimit': 80, 'studentnumber': 0, 'id': 20263, 'teacherlist': []}]</div>
+              </div>
+              <div class="test_steps" id="test_steps 班级API_添加班级3 - tc000003">
+                <span class="label">测试步骤</span>
+                <div class="case_step">
+                  <span class="tag">步骤 #1</span>
+                  <span>调用创建班级API，创建一个已存在同年级的同名班级</span>
+                </div>
+                <div class="info">实际返回的结果：{'reason': 'Traceback (most recent call last):\n  File &quot;/home/yjyx/yijiao_src/yijiao_main/services/datamodel/schoolclass/models.py&quot;, line 542, in addClass\n    school_class = self._addClass(name,schoolid,gradeid,studentlimit)\n  File &quot;/home/yjyx/yijiao_src/yijiao_main/services/datamodel/schoolclass/models.py&quot;, line 531, in _addClass\n    school_class.save()\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/models/base.py&quot;, line 710, in save\n    force_update=force_update, update_fields=update_fields)\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/models/base.py&quot;, line 738, in save_base\n    updated = self._save_table(raw, cls, force_insert, force_update, using, update_fields)\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/models/base.py&quot;, line 822, in _save_table\n    result = self._do_insert(cls._base_manager, using, fields, update_pk, raw)\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/models/base.py&quot;, line 861, in _do_insert\n    using=using, raw=raw)\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/models/manager.py&quot;, line 127, in manager_method\n    return getattr(self.get_queryset(), name)(*args, **kwargs)\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/models/query.py&quot;, line 920, in _insert\n    return query.get_compiler(using=using).execute_sql(return_id)\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/models/sql/compiler.py&quot;, line 974, in execute_sql\n    cursor.execute(sql, params)\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/backends/utils.py&quot;, line 64, in execute\n    return self.cursor.execute(sql, params)\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/utils.py&quot;, line 97, in __exit__\n    six.reraise(dj_exc_type, dj_exc_value, traceback)\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/backends/utils.py&quot;, line 64, in execute\n    return self.cursor.execute(sql, params)\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/backends/mysql/base.py&quot;, line 124, in execute\n    return self.cursor.execute(query, args)\n  File &quot;/usr/local/lib/python2.7/site-packages/MySQLdb/cursors.py&quot;, line 205, in execute\n    self.errorhandler(self, exc, value)\n  File &quot;/usr/local/lib/python2.7/site-packages/MySQLdb/connections.py&quot;, line 36, in defaulterrorhandler\n    raise errorclass, errorvalue\nIntegrityError: (1062, &quot;Duplicate entry \'\\xe4\\xb8\\x83\\xe5\\xb9\\xb4\\xe7\\xba\\xa71\\xe7\\x8f\\xad-407-1\' for key \'name\'&quot;)\n', 'retcode': 1}</div>
+                <div class="info">预期返回的结果：{'retcode': 1, 'reason': 'duplicated class name'}</div>
+                <div class="checkpoint_fail">
+                  <span class="tag">检查点 FAIL</span>
+                  <span>检查返回结果是否为失败，消息体内容是否符合预期</span>
+                </div>
+                <div class="info error-info"> 
+Traceback:
+  File &quot;cases\空环境\七年级1班\七年级1班.py&quot;, line 66, in teststeps
+    CHECK_POINT('检查返回结果是否为失败，消息体内容是否符合预期', retlist1 == exceptlist1)</div>
+              </div>
+            </div>
+          </div>
+          <div class="case pass" id="case_00000005">
+            <div class="folder_header">
+              <span class="label caselabel">用例 PASS</span>
+              <span class="casename">班级API_修改班级1 - tc000051</span>
+              <span class="executetime">2024-05-30 08:36:46</span>
+            </div>
+            <div class="folder_body">
+              <span class="case_class_path">cases\空环境\七年级1班\七年级1班.py::tc000051</span>
+              <div class="test_steps" id="test_steps 班级API_修改班级1 - tc000051">
+                <span class="label">测试步骤</span>
+                <div class="case_step">
+                  <span class="tag">步骤 #1</span>
+                  <span>调用列出班级API，获取classid</span>
+                </div>
+                <div class="case_step">
+                  <span class="tag">步骤 #2</span>
+                  <span>调用修改班级API，使班级名为新名字且无同名</span>
+                </div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果是否为0</span>
+                </div>
+                <div class="case_step">
+                  <span class="tag">步骤 #3</span>
+                  <span>调用列出班级API</span>
+                </div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果中班级名是否修改</span>
+                </div>
+              </div>
+              <div class="case_teardown teardown case_st_lable" id="case_teardown teardown 班级API_修改班级1 - tc000051">
+                <span class="label">用例清除</span>
+                <div class="info">执行用例级清除操作：将数据环境还原(七年级2班改回1班)</div>
+                <div class="info">{'retcode': 0}</div>
+              </div>
+            </div>
+          </div>
+          <div class="case fail" id="case_00000006">
+            <div class="folder_header">
+              <span class="label caselabel">用例 FAIL</span>
+              <span class="casename">班级API_修改班级2 - tc000052</span>
+              <span class="executetime">2024-05-30 08:36:46</span>
+            </div>
+            <div class="folder_body">
+              <span class="case_class_path">cases\空环境\七年级1班\七年级1班.py::tc000052</span>
+              <div class="case_setup setup case_st_lable" id="case_setup setup 班级API_修改班级2 - tc000052">
+                <span class="label">用例初始化</span>
+                <div class="info">执行用例初始化操作1：调用列出班级API，获取修改前班级信息</div>
+                <div class="info">执行用例级初始化操作2：新增一个班级，用于修改</div>
+              </div>
+              <div class="test_steps" id="test_steps 班级API_修改班级2 - tc000052">
+                <span class="label">测试步骤</span>
+                <div class="case_step">
+                  <span class="tag">步骤 #1</span>
+                  <span>调用修改班级API，使班级名为一个新名字且和已有的班级同名</span>
+                </div>
+                <div class="case_step">
+                  <span class="tag">步骤 #2</span>
+                  <span>检查返回结果是否符合预期</span>
+                </div>
+                <div class="info">预期返回的结果：{'retcode': 1, 'reason': 'duplicated class name'}</div>
+                <div class="info">实际返回的结果：{'reason': '未知错误:Traceback (most recent call last):\n  File &quot;/home/yjyx/yijiao_src/yijiao_main/services/datamodel/schoolclass/models.py&quot;, line 612, in modifyClass\n    school_class.save()\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/models/base.py&quot;, line 710, in save\n    force_update=force_update, update_fields=update_fields)\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/models/base.py&quot;, line 738, in save_base\n    updated = self._save_table(raw, cls, force_insert, force_update, using, update_fields)\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/models/base.py&quot;, line 803, in _save_table\n    forced_update)\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/models/base.py&quot;, line 853, in _do_update\n    return filtered._update(values) &gt; 0\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/models/query.py&quot;, line 580, in _update\n    return query.get_compiler(self.db).execute_sql(CURSOR)\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/models/sql/compiler.py&quot;, line 1062, in execute_sql\n    cursor = super(SQLUpdateCompiler, self).execute_sql(result_type)\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/models/sql/compiler.py&quot;, line 840, in execute_sql\n    cursor.execute(sql, params)\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/backends/utils.py&quot;, line 64, in execute\n    return self.cursor.execute(sql, params)\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/utils.py&quot;, line 97, in __exit__\n    six.reraise(dj_exc_type, dj_exc_value, traceback)\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/backends/utils.py&quot;, line 64, in execute\n    return self.cursor.execute(sql, params)\n  File &quot;/usr/local/lib/python2.7/site-packages/django/db/backends/mysql/base.py&quot;, line 124, in execute\n    return self.cursor.execute(query, args)\n  File &quot;/usr/local/lib/python2.7/site-packages/MySQLdb/cursors.py&quot;, line 205, in execute\n    self.errorhandler(self, exc, value)\n  File &quot;/usr/local/lib/python2.7/site-packages/MySQLdb/connections.py&quot;, line 36, in defaulterrorhandler\n    raise errorclass, errorvalue\nIntegrityError: (1062, &quot;Duplicate entry \'\\xe4\\xb8\\x83\\xe5\\xb9\\xb4\\xe7\\xba\\xa71\\xe7\\x8f\\xad-407-1\' for key \'name\'&quot;)\n', 'retcode': 10000}</div>
+                <div class="checkpoint_fail">
+                  <span class="tag">检查点 FAIL</span>
+                  <span>检查返回结果</span>
+                </div>
+                <div class="info error-info"> 
+Traceback:
+  File &quot;cases\空环境\七年级1班\七年级1班.py&quot;, line 141, in teststeps
+    CHECK_POINT('检查返回结果', r_STEP1 == exceptr)</div>
+              </div>
+              <div class="case_teardown teardown case_st_lable" id="case_teardown teardown 班级API_修改班级2 - tc000052">
+                <span class="label">用例清除</span>
+                <div class="info">执行用例级清除操作：删除初始化操作中新增的班级</div>
+              </div>
+            </div>
+          </div>
+          <div class="case pass" id="case_00000007">
+            <div class="folder_header">
+              <span class="label caselabel">用例 PASS</span>
+              <span class="casename">修改班级API_修改班级3 - tc000053</span>
+              <span class="executetime">2024-05-30 08:36:47</span>
+            </div>
+            <div class="folder_body">
+              <span class="case_class_path">cases\空环境\七年级1班\七年级1班.py::tc000053</span>
+              <div class="test_steps" id="test_steps 修改班级API_修改班级3 - tc000053">
+                <span class="label">测试步骤</span>
+                <div class="case_step">
+                  <span class="tag">步骤 #1</span>
+                  <span>调用修改班级API，classID为不存在的班级ID</span>
+                </div>
+                <div class="info">实际返回结果：{'reason': 'id 为`123456789`的班级不存在', 'retcode': 404}</div>
+                <div class="info">预期返回结果：{'retcode': 404, 'reason': 'id 为`123456789`的班级不存在'}</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果是否符合预期</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="case pass" id="case_00000008">
+            <div class="folder_header">
+              <span class="label caselabel">用例 PASS</span>
+              <span class="casename">班级API_删除班级1 - tc000081</span>
+              <span class="executetime">2024-05-30 08:36:47</span>
+            </div>
+            <div class="folder_body">
+              <span class="case_class_path">cases\空环境\七年级1班\七年级1班.py::tc000081</span>
+              <div class="test_steps" id="test_steps 班级API_删除班级1 - tc000081">
+                <span class="label">测试步骤</span>
+                <div class="case_step">
+                  <span class="tag">步骤 #1</span>
+                  <span>调用删除班级API，使用一个不存在的classID</span>
+                </div>
+                <div class="info">实际返回结果：{'reason': 'id 为`114514`的班级不存在', 'retcode': 404}</div>
+                <div class="info">预期返回结果：{'retcode': 404, 'reason': 'id 为`114514`的班级不存在'}</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回消息是否符合预期</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="case pass" id="case_00000009">
+            <div class="folder_header">
+              <span class="label caselabel">用例 PASS</span>
+              <span class="casename">班级API_删除班级2 - tc000082</span>
+              <span class="executetime">2024-05-30 08:36:47</span>
+            </div>
+            <div class="folder_body">
+              <span class="case_class_path">cases\空环境\七年级1班\七年级1班.py::tc000082</span>
+              <div class="case_setup setup case_st_lable" id="case_setup setup 班级API_删除班级2 - tc000082">
+                <span class="label">用例初始化</span>
+                <div class="info">开始执行用例初始化操作：新增一个班级用于用例的删除</div>
+              </div>
+              <div class="test_steps" id="test_steps 班级API_删除班级2 - tc000082">
+                <span class="label">测试步骤</span>
+                <div class="case_step">
+                  <span class="tag">步骤 #1</span>
+                  <span>调用删除班级API，使用已存在的classID</span>
+                </div>
+                <div class="info">预期返回的结果：{'retcode': 0}</div>
+                <div class="info">实际返回的结果：{'retcode': 0}</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果是否符合预期</span>
+                </div>
+                <div class="case_step">
+                  <span class="tag">步骤 #2</span>
+                  <span>调用列出班级API</span>
+                </div>
+                <div class="info">预期返回的结果：[20263]中不包含20267</div>
+                <div class="info">实际返回的结果：[20263]</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回信息是否符合预期</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="case pass" id="case_00000010">
+            <div class="folder_header">
+              <span class="label caselabel">用例 PASS</span>
+              <span class="casename">老师API_添加老师1 - tc001001</span>
+              <span class="executetime">2024-05-30 08:36:47</span>
+            </div>
+            <div class="folder_body">
+              <span class="case_class_path">cases\空环境\七年级1班\七年级1班.py::tc001001</span>
+              <div class="case_setup setup case_st_lable" id="case_setup setup 老师API_添加老师1 - tc001001">
+                <span class="label">用例初始化</span>
+                <div class="info">执行初始化操作：获取已有班级的classID，再通过json.dump方法获取含classID的json字符串</div>
+                <div class="info">[{'name': '七年级1班', 'grade__name': '七年级', 'invitecode': '202634243420', 'studentlimit': 80, 'studentnumber': 0, 'id': 20263, 'teacherlist': []}]</div>
+              </div>
+              <div class="test_steps" id="test_steps 老师API_添加老师1 - tc001001">
+                <span class="label">测试步骤</span>
+                <div class="case_step">
+                  <span class="tag">步骤 #1</span>
+                  <span>调用创建老师API，学科ID为1</span>
+                </div>
+                <div class="info">{'retcode': 0, 'id': 5222}</div>
+                <div class="info">实际的返回结果是：0</div>
+                <div class="info">预期的返回结果是：0</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果是否成功创建</span>
+                </div>
+                <div class="case_step">
+                  <span class="tag">步骤 #2</span>
+                  <span>调用列出老师API</span>
+                </div>
+                <div class="info">实际的返回结果是：[{'username': '老师001001', 'teachclasslist': [20263], 'realname': '老师001001', 'id': 5222, 'phonenumber': '123456789', 'email': 'tc001001@123.com', 'idcardnumber': '100102100312120311'}]</div>
+                <div class="info">预期的返回结果是：[{'username': '老师001001', 'teachclasslist': [20263], 'realname': '老师001001', 'id': 5222, 'phonenumber': '123456789', 'email': 'tc001001@123.com', 'idcardnumber': '100102100312120311'}]</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果是否与第一步信息相同</span>
+                </div>
+              </div>
+              <div class="case_teardown teardown case_st_lable" id="case_teardown teardown 老师API_添加老师1 - tc001001">
+                <span class="label">用例清除</span>
+                <div class="info">执行清除操作：删除用例中新建的教师</div>
+              </div>
+            </div>
+          </div>
+          <div class="case pass" id="case_00000011">
+            <div class="folder_header">
+              <span class="label caselabel">用例 PASS</span>
+              <span class="casename">WebUI_老师登陆 - tc005001</span>
+              <span class="executetime">2024-05-30 08:36:47</span>
+            </div>
+            <div class="folder_body">
+              <span class="case_class_path">cases\空环境\七年级1班\七年级1班.py::tc005001</span>
+              <div class="case_setup setup case_st_lable" id="case_setup setup WebUI_老师登陆 - tc005001">
+                <span class="label">用例初始化</span>
+                <div class="info">开始执行用例初始化操作：调用列出班级API，获取classlist</div>
+              </div>
+              <div class="test_steps" id="test_steps WebUI_老师登陆 - tc005001">
+                <span class="label">测试步骤</span>
+                <div class="case_step">
+                  <span class="tag">步骤 #1</span>
+                  <span>调用创建老师API</span>
+                </div>
+                <div class="info">创建老师API实际返回的结果：{'retcode': 0, 'id': 5223}</div>
+                <div class="case_step">
+                  <span class="tag">步骤 #2</span>
+                  <span>以STEP1中的账号登陆Web系统</span>
+                </div>
+                <div class="info">打开浏览器</div>
+                <div class="case_step">
+                  <span class="tag">步骤 #3</span>
+                  <span>获取首页各项信息</span>
+                </div>
+                <div class="info">预期的结果是：{'学校名称': '白月学院00002', '姓名': 'tc005001', '学科': '初中数学', '金币': '0', '微课': '0', '作业': '0'}</div>
+                <div class="info">实际的结果是：{'学校名称': '白月学院00002', '姓名': 'tc005001', '学科': '初中数学', '金币': '0', '微课': '0', '作业': '0'}</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查结果是否正确</span>
+                </div>
+                <div class="case_step">
+                  <span class="tag">步骤 #4</span>
+                  <span>点击班级学生菜单</span>
+                </div>
+              </div>
+              <div class="case_teardown teardown case_st_lable" id="case_teardown teardown WebUI_老师登陆 - tc005001">
+                <span class="label">用例清除</span>
+                <div class="info">开始执行用例清除操作：删除用例中新建的老师</div>
+                <div class="info">{'retcode': 0}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="suite_dir" id="suite_dir cases\空环境\七年级1班\阿茂教师\">
+          <div>
+            <span class="label">进入目录</span>
+            <span>cases\空环境\七年级1班\阿茂教师\</span>
+          </div>
+          <div class="suite_setup setup" id="suite_setup setup cases\空环境\七年级1班\阿茂教师\">
+            <div class="folder_header">
+              <span class="label">套件初始化</span>
+              <span>cases\空环境\七年级1班\阿茂教师\</span>
+              <span class="executetime">2024-05-30 08:36:51</span>
+            </div>
+            <div class="folder_body">
+              <div class="info">开始执行目录初始化：系统中已经有老师</div>
+            </div>
+          </div>
+        </div>
+        <div class="suite_file" id="suite_file cases\空环境\七年级1班\阿茂教师\阿茂教师.py">
+          <div>
+            <span class="label">进入文件</span>
+            <span>cases\空环境\七年级1班\阿茂教师\阿茂教师.py</span>
+          </div>
+          <div class="case pass" id="case_00000012">
+            <div class="folder_header">
+              <span class="label caselabel">用例 PASS</span>
+              <span class="casename">老师API_添加老师2 - tc001002</span>
+              <span class="executetime">2024-05-30 08:36:52</span>
+            </div>
+            <div class="folder_body">
+              <span class="case_class_path">cases\空环境\七年级1班\阿茂教师\阿茂教师.py::tc001002</span>
+              <div class="case_setup setup case_st_lable" id="case_setup setup 老师API_添加老师2 - tc001002">
+                <span class="label">用例初始化</span>
+                <div class="info">执行初始化操作：新增一个班级，再通过json.dump方法获取含classID的json字符串</div>
+              </div>
+              <div class="test_steps" id="test_steps 老师API_添加老师2 - tc001002">
+                <span class="label">测试步骤</span>
+                <div class="case_step">
+                  <span class="tag">步骤 #1</span>
+                  <span>调用创建老师API，创建1个系统中不存在同登录名的老师</span>
+                </div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查是否返回创建成功</span>
+                </div>
+                <div class="case_step">
+                  <span class="tag">步骤 #2</span>
+                  <span>调用列出老师API,获取所有老师的ID并保存至空列表中</span>
+                </div>
+                <div class="info">预期的结果是：[{'username': '阿茂老师001002', 'teachclasslist': [20268], 'realname': '阿茂老师001002', 'id': 5225, 'phonenumber': '1234567891', 'email': 'amao001002@qq.com', 'idcardnumber': '411412555236633653'}]</div>
+                <div class="info">实际的结果是：[{'username': '阿茂老师', 'teachclasslist': [20263], 'realname': '阿茂老师', 'id': 5224, 'phonenumber': '123456789', 'email': 'amao@qq.com', 'idcardnumber': '411412555236633652'}, {'username': '阿茂老师001002', 'teachclasslist': [20268], 'realname': '阿茂老师001002', 'id': 5225, 'phonenumber': '1234567891', 'email': 'amao001002@qq.com', 'idcardnumber': '411412555236633653'}]</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查STEP1中新建的老师信息是否存在</span>
+                </div>
+              </div>
+              <div class="case_teardown teardown case_st_lable" id="case_teardown teardown 老师API_添加老师2 - tc001002">
+                <span class="label">用例清除</span>
+                <div class="info">执行清除操作：删除用例中新建的教师</div>
+                <div class="info">执行清除操作：删除初始化中新建的班级</div>
+              </div>
+            </div>
+          </div>
+          <div class="case pass" id="case_00000013">
+            <div class="folder_header">
+              <span class="label caselabel">用例 PASS</span>
+              <span class="casename">老师API_添加老师3 - tc001003</span>
+              <span class="executetime">2024-05-30 08:36:52</span>
+            </div>
+            <div class="folder_body">
+              <span class="case_class_path">cases\空环境\七年级1班\阿茂教师\阿茂教师.py::tc001003</span>
+              <div class="case_setup setup case_st_lable" id="case_setup setup 老师API_添加老师3 - tc001003">
+                <span class="label">用例初始化</span>
+                <div class="info">开始执行用例初始化操作：新建1个班级</div>
+              </div>
+              <div class="test_steps" id="test_steps 老师API_添加老师3 - tc001003">
+                <span class="label">测试步骤</span>
+                <div class="case_step">
+                  <span class="tag">步骤 #1</span>
+                  <span>调用列出老师API，获取已有老师的ID及其用户名，用于后续检查点验证</span>
+                </div>
+                <div class="case_step">
+                  <span class="tag">步骤 #2</span>
+                  <span>调用创建老师API，创建一个存在同登录名的老师</span>
+                </div>
+                <div class="info">预期返回的结果：{'retcode': 1, 'reason': '登录名 阿茂老师 已经存在'}</div>
+                <div class="info">实际返回的结果：{'reason': '登录名 阿茂老师 已经存在', 'retcode': 1}</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果是否符合预期</span>
+                </div>
+                <div class="case_step">
+                  <span class="tag">步骤 #3</span>
+                  <span>调用列出老师API</span>
+                </div>
+                <div class="info">预期返回的结果：{'retlist': [{'username': '阿茂老师', 'teachclasslist': [20263], 'realname': '阿茂老师', 'id': 5224, 'phonenumber': '123456789', 'email': 'amao@qq.com', 'idcardnumber': '411412555236633652'}], 'retcode': 0}</div>
+                <div class="info">实际返回的结果：{'retlist': [{'username': '阿茂老师', 'teachclasslist': [20263], 'realname': '阿茂老师', 'id': 5224, 'phonenumber': '123456789', 'email': 'amao@qq.com', 'idcardnumber': '411412555236633652'}], 'retcode': 0}</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果是否符合预期</span>
+                </div>
+              </div>
+              <div class="case_teardown teardown case_st_lable" id="case_teardown teardown 老师API_添加老师3 - tc001003">
+                <span class="label">用例清除</span>
+                <div class="info">开始执行用例清除操作：删除初始化操作中新建的班级</div>
+              </div>
+            </div>
+          </div>
+          <div class="case pass" id="case_00000014">
+            <div class="folder_header">
+              <span class="label caselabel">用例 PASS</span>
+              <span class="casename">老师API_修改老师1 - tc001051</span>
+              <span class="executetime">2024-05-30 08:36:52</span>
+            </div>
+            <div class="folder_body">
+              <span class="case_class_path">cases\空环境\七年级1班\阿茂教师\阿茂教师.py::tc001051</span>
+              <div class="test_steps" id="test_steps 老师API_修改老师1 - tc001051">
+                <span class="label">测试步骤</span>
+                <div class="case_step">
+                  <span class="tag">步骤 #1</span>
+                  <span>调用修改老师API，是url中的ID为一个不存在的老师ID</span>
+                </div>
+                <div class="case_step">
+                  <span class="tag">步骤 #2</span>
+                  <span>检查返回结果是否符合预期</span>
+                </div>
+                <div class="info">预期返回的结果：{'retcode': 1, 'reason': 'id 为`123321`的老师不存在'}</div>
+                <div class="info">实际返回的结果：{'reason': 'id 为`123321`的老师不存在', 'retcode': 1}</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果是否符合预期</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="case pass" id="case_00000015">
+            <div class="folder_header">
+              <span class="label caselabel">用例 PASS</span>
+              <span class="casename">老师API_修改老师2 - tc001052</span>
+              <span class="executetime">2024-05-30 08:36:52</span>
+            </div>
+            <div class="folder_body">
+              <span class="case_class_path">cases\空环境\七年级1班\阿茂教师\阿茂教师.py::tc001052</span>
+              <div class="case_setup setup case_st_lable" id="case_setup setup 老师API_修改老师2 - tc001052">
+                <span class="label">用例初始化</span>
+                <div class="info">开始执行用例初始化操作：新增2个班级，用于用例中的修改操作</div>
+                <div class="info">开始执行用例初始化操作：新增1个教师，用于用例中的修改操作</div>
+              </div>
+              <div class="test_steps" id="test_steps 老师API_修改老师2 - tc001052">
+                <span class="label">测试步骤</span>
+                <div class="case_step">
+                  <span class="tag">步骤 #1</span>
+                  <span>调用修改老师API，同时修改真实名和授课班级，班级从1个班修改为2个班</span>
+                </div>
+                <div class="info">预期返回的结果：{'retcode': 0}</div>
+                <div class="info">实际返回的结果：{'retcode': 0}</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果是否符合预期</span>
+                </div>
+                <div class="case_step">
+                  <span class="tag">步骤 #2</span>
+                  <span>调用列出老师API</span>
+                </div>
+                <div class="info">realname预期包含的结果：阿茂老师001052</div>
+                <div class="info">realname实际的结果：['阿茂老师', '阿茂老师001052']</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果中的realname字段</span>
+                </div>
+                <div class="info">teachclasslist预期包含的结果：[20270, 20271]</div>
+                <div class="info">teachclasslist实际的结果：[[20263], [20270, 20271]]</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果中的teachclasslist字段</span>
+                </div>
+              </div>
+              <div class="case_teardown teardown case_st_lable" id="case_teardown teardown 老师API_修改老师2 - tc001052">
+                <span class="label">用例清除</span>
+                <div class="info">开始执行用例清除操作：删除初始化操作中新增的教师和班级</div>
+              </div>
+            </div>
+          </div>
+          <div class="case pass" id="case_00000016">
+            <div class="folder_header">
+              <span class="label caselabel">用例 PASS</span>
+              <span class="casename">老师API_删除老师1 - tc001081</span>
+              <span class="executetime">2024-05-30 08:36:52</span>
+            </div>
+            <div class="folder_body">
+              <span class="case_class_path">cases\空环境\七年级1班\阿茂教师\阿茂教师.py::tc001081</span>
+              <div class="test_steps" id="test_steps 老师API_删除老师1 - tc001081">
+                <span class="label">测试步骤</span>
+                <div class="case_step">
+                  <span class="tag">步骤 #1</span>
+                  <span>调用删除老师API，删除一个不存在的老师ID</span>
+                </div>
+                <div class="case_step">
+                  <span class="tag">步骤 #2</span>
+                  <span>检查返回结果</span>
+                </div>
+                <div class="info">预期返回的结果：{'retcode': 404, 'reason': 'id 为`456123`的老师不存在'}</div>
+                <div class="info">实际返回的结果：{'reason': 'id 为`456123`的老师不存在', 'retcode': 404}</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果是否符合预期</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="case pass" id="case_00000017">
+            <div class="folder_header">
+              <span class="label caselabel">用例 PASS</span>
+              <span class="casename">老师API_删除老师2 - tc001082</span>
+              <span class="executetime">2024-05-30 08:36:52</span>
+            </div>
+            <div class="folder_body">
+              <span class="case_class_path">cases\空环境\七年级1班\阿茂教师\阿茂教师.py::tc001082</span>
+              <div class="case_setup setup case_st_lable" id="case_setup setup 老师API_删除老师2 - tc001082">
+                <span class="label">用例初始化</span>
+                <div class="info">开始执行用例初始化操作：新增1个班级</div>
+                <div class="info">开始执行用例初始化操作：新增1个教师</div>
+              </div>
+              <div class="test_steps" id="test_steps 老师API_删除老师2 - tc001082">
+                <span class="label">测试步骤</span>
+                <div class="case_step">
+                  <span class="tag">步骤 #1</span>
+                  <span>调用删除老师API，删除一个存在的老师ID</span>
+                </div>
+                <div class="info">预期的返回结果：{'retcode': 0}</div>
+                <div class="info">实际的返回结果：{'retcode': 0}</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果：</span>
+                </div>
+                <div class="case_step">
+                  <span class="tag">步骤 #2</span>
+                  <span>调用列出老师API</span>
+                </div>
+                <div class="info">预期的返回结果不包含：5227</div>
+                <div class="info">实际的返回结果：[5224]</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果</span>
+                </div>
+              </div>
+              <div class="case_teardown teardown case_st_lable" id="case_teardown teardown 老师API_删除老师2 - tc001082">
+                <span class="label">用例清除</span>
+                <div class="info">开始执行用例清除操作：删除初始化中新增的班级</div>
+              </div>
+            </div>
+          </div>
+          <div class="case pass" id="case_00000018">
+            <div class="folder_header">
+              <span class="label caselabel">用例 PASS</span>
+              <span class="casename">学生API_添加学生1 - tc002001</span>
+              <span class="executetime">2024-05-30 08:36:52</span>
+            </div>
+            <div class="folder_body">
+              <span class="case_class_path">cases\空环境\七年级1班\阿茂教师\阿茂教师.py::tc002001</span>
+              <div class="case_setup setup case_st_lable" id="case_setup setup 学生API_添加学生1 - tc002001">
+                <span class="label">用例初始化</span>
+                <div class="info">开始执行初始化操作：调用列出班级API，获取classid</div>
+              </div>
+              <div class="test_steps" id="test_steps 学生API_添加学生1 - tc002001">
+                <span class="label">测试步骤</span>
+                <div class="case_step">
+                  <span class="tag">步骤 #1</span>
+                  <span>调用学生API，创建1个不存在同登录名的学生</span>
+                </div>
+                <div class="info">预期返回的结果：{'retcode': 0, 'id': 2122}</div>
+                <div class="info">实际返回的结果：{'retcode': 0, 'id': 2122}</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果是否符合预期</span>
+                </div>
+                <div class="case_step">
+                  <span class="tag">步骤 #2</span>
+                  <span>调用列出学生API</span>
+                </div>
+                <div class="info">预期返回的结果：[{'classid': 20263, 'realname': '阿茂学生2001', 'username': '阿茂学生2001', 'phonenumber': '123456789', 'id': 2122}]</div>
+                <div class="info">实际返回的结果：[{'classid': 20263, 'realname': '阿茂学生2001', 'username': '阿茂学生2001', 'phonenumber': '123456789', 'id': 2122}]</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果是否符合预期</span>
+                </div>
+              </div>
+              <div class="case_teardown teardown case_st_lable" id="case_teardown teardown 学生API_添加学生1 - tc002001">
+                <span class="label">用例清除</span>
+                <div class="info">开始执行清除操作：删除用例中新增的学生</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="suite_dir" id="suite_dir cases\空环境\七年级1班\阿茂教师\阿茂学生\">
+          <div>
+            <span class="label">进入目录</span>
+            <span>cases\空环境\七年级1班\阿茂教师\阿茂学生\</span>
+          </div>
+          <div class="suite_setup setup" id="suite_setup setup cases\空环境\七年级1班\阿茂教师\阿茂学生\">
+            <div class="folder_header">
+              <span class="label">套件初始化</span>
+              <span>cases\空环境\七年级1班\阿茂教师\阿茂学生\</span>
+              <span class="executetime">2024-05-30 08:36:53</span>
+            </div>
+            <div class="folder_body">
+              <div class="info">开始执行目录初始化操作：列出已有的班级，获取classid</div>
+              <div class="info">开始执行目录初始化操作：新增1个学生，获取studentid</div>
+            </div>
+          </div>
+        </div>
+        <div class="suite_file" id="suite_file cases\空环境\七年级1班\阿茂教师\阿茂学生\阿茂学生.py">
+          <div>
+            <span class="label">进入文件</span>
+            <span>cases\空环境\七年级1班\阿茂教师\阿茂学生\阿茂学生.py</span>
+          </div>
+          <div class="case pass" id="case_00000019">
+            <div class="folder_header">
+              <span class="label caselabel">用例 PASS</span>
+              <span class="casename">学生API_添加学生2 - tc002002</span>
+              <span class="executetime">2024-05-30 08:36:53</span>
+            </div>
+            <div class="folder_body">
+              <span class="case_class_path">cases\空环境\七年级1班\阿茂教师\阿茂学生\阿茂学生.py::tc002002</span>
+              <div class="test_steps" id="test_steps 学生API_添加学生2 - tc002002">
+                <span class="label">测试步骤</span>
+                <div class="case_step">
+                  <span class="tag">步骤 #1</span>
+                  <span>调用列出班级API，获取classid</span>
+                </div>
+                <div class="case_step">
+                  <span class="tag">步骤 #2</span>
+                  <span>调用创建学生API</span>
+                </div>
+                <div class="info">预期的返回结果：{'retcode': 0, 'id': 2124}</div>
+                <div class="info">实际的返回结果：{'retcode': 0, 'id': 2124}</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果是否符合预期</span>
+                </div>
+                <div class="case_step">
+                  <span class="tag">步骤 #3</span>
+                  <span>调用列出学生API</span>
+                </div>
+                <div class="info">预期的返回结果需包含：{'classid': 20263, 'realname': '阿茂学生2002', 'username': '阿茂学生2002', 'phonenumber': '1234562002', 'id': 2124}</div>
+                <div class="info">实际的返回结果：[{'classid': 20263, 'realname': '阿茂学生', 'username': '阿茂学生', 'phonenumber': '13451813456', 'id': 2123}, {'classid': 20263, 'realname': '阿茂学生2002', 'username': '阿茂学生2002', 'phonenumber': '1234562002', 'id': 2124}]</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果是否符合预期</span>
+                </div>
+              </div>
+              <div class="case_teardown teardown case_st_lable" id="case_teardown teardown 学生API_添加学生2 - tc002002">
+                <span class="label">用例清除</span>
+                <div class="info">开始执行用例清除操作：删除用例中新建的学生</div>
+              </div>
+            </div>
+          </div>
+          <div class="case pass" id="case_00000020">
+            <div class="folder_header">
+              <span class="label caselabel">用例 PASS</span>
+              <span class="casename">学生API_删除学生1 - tc002081</span>
+              <span class="executetime">2024-05-30 08:36:53</span>
+            </div>
+            <div class="folder_body">
+              <span class="case_class_path">cases\空环境\七年级1班\阿茂教师\阿茂学生\阿茂学生.py::tc002081</span>
+              <div class="case_setup setup case_st_lable" id="case_setup setup 学生API_删除学生1 - tc002081">
+                <span class="label">用例初始化</span>
+                <div class="info">开始执行初始化操作：新增一个学生用于删除</div>
+              </div>
+              <div class="test_steps" id="test_steps 学生API_删除学生1 - tc002081">
+                <span class="label">测试步骤</span>
+                <div class="case_step">
+                  <span class="tag">步骤 #1</span>
+                  <span>调用删除学生API</span>
+                </div>
+                <div class="info">预期返回的结果：{'retcode': 0}</div>
+                <div class="info">实际返回的结果：{'retcode': 0}</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果是否符合预期</span>
+                </div>
+                <div class="case_step">
+                  <span class="tag">步骤 #2</span>
+                  <span>调用列出学生API</span>
+                </div>
+                <div class="info">预期返回结果中不应含有：2125</div>
+                <div class="info">实际返回结果：[2123]</div>
+                <div class="checkpoint_pass">
+                  <span class="tag">检查点 PASS</span>
+                  <span>检查返回结果，不应包含已删除的学生</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="suite_teardown teardown" id="suite_teardown teardown cases\空环境\七年级1班\阿茂教师\阿茂学生\">
+            <div class="folder_header">
+              <span class="label">套件清除</span>
+              <span>cases\空环境\七年级1班\阿茂教师\阿茂学生\</span>
+              <span class="executetime">2024-05-30 08:36:53</span>
+            </div>
+            <div class="folder_body">
+              <div class="info">开始执行目录清除操作：删除初始化中新增的学生</div>
+            </div>
+          </div>
+          <div class="suite_teardown teardown" id="suite_teardown teardown cases\空环境\七年级1班\阿茂教师\">
+            <div class="folder_header">
+              <span class="label">套件清除</span>
+              <span>cases\空环境\七年级1班\阿茂教师\</span>
+              <span class="executetime">2024-05-30 08:36:53</span>
+            </div>
+            <div class="folder_body">
+              <div class="info">开始执行目录清除：删除初始化操作中新建的老师</div>
+            </div>
+          </div>
+          <div class="suite_teardown teardown" id="suite_teardown teardown cases\空环境\七年级1班\">
+            <div class="folder_header">
+              <span class="label">套件清除</span>
+              <span>cases\空环境\七年级1班\</span>
+              <span class="executetime">2024-05-30 08:36:53</span>
+            </div>
+            <div class="folder_body">
+              <div class="info">开始执行目录清除：删除套件初始化中新建的班级</div>
+            </div>
+          </div>
+          <div class="suite_teardown teardown" id="suite_teardown teardown cases\空环境\">
+            <div class="folder_header">
+              <span class="label">套件清除</span>
+              <span>cases\空环境\</span>
+              <span class="executetime">2024-05-30 08:36:53</span>
+            </div>
+            <div class="folder_body">
+              <div class="info">开始执行目录清除：检查环境中是否存在教师，若有则删除</div>
+              <div class="info">开始执行目录清除：检查环境中是否存在班级，若有则删除</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="float_menu">
+      <div class="menu-item" onclick="document.querySelector(&quot;body&quot;).scrollIntoView()">页首</div>
+      <div class="menu-item" onclick="window.open(&quot;http://www.byhy.net/tut/auto/hytest/01&quot;, &quot;_blank&quot;); ">帮助</div>
+      <div class="menu-item" id="display_mode" onclick="toggle_folder_all_cases()">Summary</div>
+      <div class="error_jumper" display="block">
+        <div class="menu-item" onclick="previous_error()" title="上一个错误">∧</div>
+        <div class="menu-item" onclick="next_error()" title="下一个错误">∨</div>
+      </div>
+    </div>
+  </body>
+</html>
